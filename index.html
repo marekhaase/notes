@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Poznámky</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#14161c;
+  --bg-panel:#191c23;
+  --bg-input:#20232c;
+  --bg-hover:#262a35;
+  --border:#272b35;
+  --fg:#e9e6df;
+  --fg-muted:#888c99;
+  --accent:#e8a33d;
+  --accent-soft:rgba(232,163,61,.14);
+  --accent-2:#5fb4a2;
+  --accent-2-soft:rgba(95,180,162,.14);
+  --danger:#e0757b;
+  --danger-soft:rgba(224,117,123,.14);
+  --radius:5px;
+  --font-ui:'Space Grotesk',system-ui,sans-serif;
+  --font-serif:'Source Serif 4',Georgia,serif;
+  --font-mono:'JetBrains Mono','SFMono-Regular',Consolas,monospace;
+}
+
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--fg);
+  font-family:var(--font-ui);
+  font-size:14px;
+  overflow:hidden;
+}
+button,input,select{font-family:inherit;font-size:inherit;color:inherit;}
+button{cursor:pointer;}
+
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+[hidden]{display:none !important;}
+
+@media (prefers-reduced-motion: reduce){
+  *{transition:none !important;animation:none !important;}
+}
+
+/* ---------- layout ---------- */
+#app{
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 20px;
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.brand{
+  font-weight:600;
+  font-size:17px;
+  letter-spacing:.01em;
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+}
+.brand .dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--accent);
+  display:inline-block;
+}
+.topbar-actions{display:flex;gap:8px;}
+
+.btn{
+  background:var(--bg-input);
+  border:1px solid var(--border);
+  color:var(--fg);
+  padding:7px 12px;
+  border-radius:var(--radius);
+  font-size:13px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  transition:background .12s, border-color .12s;
+}
+.btn:hover{background:var(--bg-hover);border-color:#3a3f4d;}
+.btn kbd{
+  font-family:var(--font-mono);
+  font-size:10px;
+  color:var(--fg-muted);
+  background:rgba(255,255,255,.05);
+  padding:1px 4px;
+  border-radius:3px;
+}
+.btn.primary{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);}
+.btn.primary:hover{background:var(--accent);color:#14161c;}
+.btn.danger{color:var(--danger);}
+.btn.danger:hover{background:var(--danger-soft);border-color:var(--danger);}
+.btn.ghost{background:transparent;border-color:transparent;}
+.btn.ghost:hover{background:var(--bg-hover);}
+.btn:disabled{opacity:.35;cursor:not-allowed;pointer-events:none;}
+.btn.small{padding:4px 8px;font-size:12px;}
+.btn.toggle.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);}
+
+.layout{
+  flex:1;
+  display:grid;
+  grid-template-columns:190px 300px 1fr;
+  min-height:0;
+}
+
+/* ---------- rail (kategorie) ---------- */
+.rail{
+  background:var(--bg-panel);
+  border-right:1px solid var(--border);
+  padding:16px 12px;
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+}
+.rail-label{
+  font-size:11px;
+  color:var(--fg-muted);
+  margin:0 0 8px 6px;
+  font-weight:500;
+}
+.rail-list{
+  list-style:none;
+  margin:0;padding:0;
+  flex:1;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.rail-item{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:7px 8px;
+  border-radius:var(--radius);
+  border-left:2px solid transparent;
+  cursor:pointer;
+  color:var(--fg-muted);
+  font-size:13px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.rail-item:hover{background:var(--bg-hover);color:var(--fg);}
+.rail-item.active{
+  background:var(--accent-soft);
+  border-left-color:var(--accent);
+  color:var(--fg);
+}
+.rail-item.trash{margin-top:8px;border-top:1px solid var(--border);padding-top:11px;}
+.rail-item.trash.active{background:var(--danger-soft);border-left-color:var(--danger);}
+.rail-swatch{width:8px;height:8px;border-radius:2px;flex-shrink:0;background:var(--fg-muted);}
+.rail-footer{display:flex;gap:6px;margin-top:10px;}
+.rail-footer .btn{flex:1;justify-content:center;}
+
+/* ---------- notelist ---------- */
+.notelist{
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+}
+.notelist-toolbar{
+  display:flex;
+  gap:8px;
+  padding:14px;
+  border-bottom:1px solid var(--border);
+}
+.input{
+  background:var(--bg-input);
+  border:1px solid var(--border);
+  color:var(--fg);
+  padding:7px 10px;
+  border-radius:var(--radius);
+}
+.input::placeholder{color:var(--fg-muted);}
+#searchInput{flex:1;min-width:0;}
+
+.notes-ul{
+  list-style:none;
+  margin:0;padding:6px;
+  overflow-y:auto;
+  flex:1;
+}
+.note-li{
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  padding:9px 8px;
+  border-radius:var(--radius);
+  cursor:pointer;
+}
+.note-li:hover{background:var(--bg-hover);}
+.note-li.selected{background:var(--accent-soft);}
+.hour-badge{
+  font-family:var(--font-mono);
+  font-size:11px;
+  color:var(--fg-muted);
+  border:1px solid var(--border);
+  border-radius:3px;
+  padding:1px 5px;
+  flex-shrink:0;
+  margin-top:1px;
+  white-space:nowrap;
+}
+.note-li.selected .hour-badge{border-color:var(--accent);color:var(--accent);}
+.note-meta{min-width:0;}
+.note-title{
+  font-size:13px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.note-date{font-size:11px;color:var(--fg-muted);margin-top:1px;}
+.empty-hint{color:var(--fg-muted);font-size:13px;padding:24px 14px;text-align:center;}
+
+.notelist-actions{padding:12px;border-top:1px solid var(--border);display:flex;gap:8px;}
+.notelist-actions .btn{flex:1;justify-content:center;}
+
+/* ---------- editor ---------- */
+.editor{
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+  padding:18px 24px;
+}
+.editor-header{display:flex;gap:10px;align-items:center;}
+#titleInput{
+  flex:1;
+  background:transparent;
+  border:none;
+  border-bottom:1px solid transparent;
+  color:var(--fg);
+  font-family:var(--font-serif);
+  font-size:22px;
+  font-weight:600;
+  padding:4px 2px;
+}
+#titleInput:focus{border-bottom-color:var(--border);}
+#titleInput::placeholder{color:var(--fg-muted);font-weight:400;}
+#categorySelect{
+  background:var(--bg-input);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:7px 8px;
+  max-width:150px;
+}
+
+.meta-bar{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-top:12px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--border);
+  flex-wrap:wrap;
+}
+.meta-field{display:flex;align-items:center;gap:6px;color:var(--fg-muted);font-size:12px;}
+.meta-field input[type=text],.meta-field input[type=number]{
+  background:var(--bg-input);
+  border:1px solid var(--border);
+  color:var(--fg);
+  border-radius:var(--radius);
+  padding:5px 7px;
+  font-family:var(--font-mono);
+  font-size:12.5px;
+}
+#dateInput{width:98px;}
+#hourInput{width:44px;text-align:center;}
+.meta-field label.check{display:flex;align-items:center;gap:5px;cursor:pointer;}
+#hourPreview{color:var(--accent);font-family:var(--font-mono);font-size:12px;}
+
+.format-bar{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-top:10px;
+}
+.format-bar .hint{color:var(--fg-muted);font-size:11px;margin-left:8px;}
+
+#editorContent{
+  flex:1;
+  margin-top:12px;
+  overflow-y:auto;
+  font-family:var(--font-serif);
+  font-size:16px;
+  line-height:1.65;
+  outline:none;
+  padding:4px 2px 40px;
+}
+#editorContent:empty::before{
+  content:attr(data-placeholder);
+  color:var(--fg-muted);
+  font-style:italic;
+}
+#editorContent b,#editorContent strong{color:var(--fg);}
+#editorContent[contenteditable=false]{opacity:.6;}
+
+.status-bar{
+  color:var(--fg-muted);
+  font-size:11.5px;
+  padding-top:8px;
+  border-top:1px solid var(--border);
+  font-family:var(--font-mono);
+}
+
+.editor-empty{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  color:var(--fg-muted);font-size:14px;
+}
+
+/* ---------- modal ---------- */
+.modal-overlay{
+  position:fixed;inset:0;
+  background:rgba(10,11,14,.6);
+  display:flex;align-items:center;justify-content:center;
+  z-index:50;
+  transition:opacity .12s;
+}
+.modal-overlay[hidden]{display:none;}
+.modal{
+  background:var(--bg-panel);
+  border:1px solid var(--border);
+  border-radius:8px;
+  width:min(92vw,520px);
+  max-height:86vh;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.modal-head{
+  padding:16px 20px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.modal-head h2{margin:0;font-size:16px;font-weight:600;}
+.modal-body{padding:16px 20px;overflow-y:auto;}
+.modal-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
+.modal-hint{color:var(--fg-muted);font-size:12.5px;line-height:1.5;margin:0 0 14px;}
+
+.day-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.day-nav .day-label{font-family:var(--font-mono);font-weight:600;font-size:15px;}
+.day-row{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 4px;border-bottom:1px solid var(--border);
+}
+.day-row:last-child{border-bottom:none;}
+.day-row .hn{font-family:var(--font-mono);color:var(--fg-muted);width:26px;flex-shrink:0;}
+.day-row .note-link{color:var(--accent);cursor:pointer;font-size:13px;}
+.day-row .note-link:hover{text-decoration:underline;}
+.day-row .none{color:var(--fg-muted);font-size:13px;}
+
+.week-grid{display:grid;grid-template-columns:34px repeat(5,1fr);gap:4px;font-size:12px;}
+.week-grid .hh{font-family:var(--font-mono);color:var(--fg-muted);display:flex;align-items:center;justify-content:center;}
+.week-grid .dh{font-weight:600;text-align:center;padding-bottom:4px;}
+.week-grid select{width:100%;background:var(--bg-input);border:1px solid var(--border);color:var(--fg);border-radius:3px;padding:3px;font-size:11px;}
+
+.time-row{display:flex;align-items:center;gap:8px;padding:4px 0;}
+.time-row label{width:70px;color:var(--fg-muted);font-size:13px;}
+.time-row input{width:80px;font-family:var(--font-mono);background:var(--bg-input);border:1px solid var(--border);color:var(--fg);border-radius:var(--radius);padding:5px 7px;text-align:center;}
+
+/* ---------- responsive ---------- */
+@media (max-width:860px){
+  body{overflow-y:auto;}
+  .layout{grid-template-columns:1fr;grid-template-rows:auto auto 1fr;}
+  .rail{
+    flex-direction:column;border-right:none;border-bottom:1px solid var(--border);
+    padding:10px 12px;align-items:stretch;gap:8px;
+  }
+  .rail-label{display:none;}
+  .rail-list{flex-direction:row;overflow-x:auto;overflow-y:hidden;flex:none;gap:4px;}
+  .rail-item{border-left:none;border-bottom:2px solid transparent;flex-shrink:0;}
+  .rail-item.active{border-left-color:transparent;border-bottom-color:var(--accent);}
+  .rail-item.trash{margin-top:0;border-top:none;padding-top:7px;border-left:1px solid var(--border);padding-left:12px;}
+  .rail-footer{margin-top:0;}
+  .notelist{border-right:none;border-bottom:1px solid var(--border);max-height:34vh;}
+  .topbar{flex-wrap:wrap;gap:10px;}
+  .topbar-actions{flex-wrap:wrap;}
+  .editor-header{flex-wrap:wrap;}
+  #titleInput{flex-basis:100%;order:-1;}
+  .editor{padding:16px;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="topbar">
+    <div class="brand"><span class="dot"></span>Poznámky</div>
+    <div class="topbar-actions">
+      <button class="btn" id="btnPeriodTimes">Časy hodin</button>
+      <button class="btn" id="btnWeekly">Týdenní rozvrh</button>
+      <button class="btn" id="btnDaySchedule">Rozvrh dne <kbd>Ctrl R</kbd></button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="rail">
+      <div class="rail-label">Kategorie</div>
+      <ul class="rail-list" id="categoryRail"></ul>
+      <div class="rail-footer">
+        <button class="btn small" id="btnAddCategory">+ Přidat</button>
+        <button class="btn small danger" id="btnDeleteCategory">Smazat</button>
+      </div>
+    </aside>
+
+    <section class="notelist">
+      <div class="notelist-toolbar">
+        <input class="input" id="searchInput" placeholder="Hledat... (Ctrl F)">
+        <button class="btn primary" id="btnNew">+ Nová <kbd>Ctrl N</kbd></button>
+      </div>
+      <ul class="notes-ul" id="notesUl"></ul>
+      <div class="notelist-actions" id="normalActions">
+        <button class="btn" id="btnTrashNote">Přesunout do koše</button>
+      </div>
+      <div class="notelist-actions" id="trashActions" hidden>
+        <button class="btn" id="btnRestore">↺ Obnovit</button>
+        <button class="btn danger" id="btnPurgeOne">Smazat natrvalo</button>
+      </div>
+    </section>
+
+    <section class="editor" id="editorSection">
+      <div class="editor-header">
+        <input id="titleInput" placeholder="Název poznámky">
+        <select id="categorySelect"></select>
+        <button class="btn" id="btnShare">Sdílet .txt</button>
+      </div>
+      <div class="meta-bar">
+        <div class="meta-field">Datum <input type="text" id="dateInput" placeholder="dd.mm.rrrr"></div>
+        <div class="meta-field">Hodina <input type="number" id="hourInput" min="1" max="12"></div>
+        <label class="meta-field check"><input type="checkbox" id="doubleCheckbox"> Dvouhodinovka <kbd style="font-family:var(--font-mono);font-size:10px;color:var(--fg-muted);">Ctrl D</kbd></label>
+        <span id="hourPreview"></span>
+      </div>
+      <div class="format-bar">
+        <button class="btn toggle small" id="btnBold"><b>B</b> Tučně</button>
+        <button class="btn toggle small" id="btnItalic"><i>I</i> Kurzíva</button>
+        <span class="hint">označ text a klikni, nebo Ctrl+B / Ctrl+I · zoom Ctrl+kolečko, Ctrl +/-, Ctrl 0</span>
+      </div>
+      <div id="editorContent" contenteditable="true" data-placeholder="Piš sem..."></div>
+      <div class="status-bar" id="statusBar">Připraveno</div>
+    </section>
+  </div>
+</div>
+
+<!-- Rozvrh dne -->
+<div class="modal-overlay" id="dayModalOverlay" hidden>
+  <div class="modal">
+    <div class="modal-head"><h2>Rozvrh dne</h2><button class="btn ghost small" data-close>×</button></div>
+    <div class="modal-body">
+      <div class="day-nav">
+        <button class="btn small" id="dayPrev">◀</button>
+        <span class="day-label" id="dayLabel"></span>
+        <button class="btn small" id="dayNext">▶</button>
+      </div>
+      <button class="btn small" id="dayToday" style="width:100%;justify-content:center;margin-bottom:12px;">Dnes</button>
+      <div id="dayRows"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Týdenní rozvrh -->
+<div class="modal-overlay" id="weeklyModalOverlay" hidden>
+  <div class="modal" style="width:min(92vw,640px);">
+    <div class="modal-head"><h2>Týdenní rozvrh</h2><button class="btn ghost small" data-close>×</button></div>
+    <div class="modal-body">
+      <p class="modal-hint">Nastav, jaký předmět (kategorie) máš kdy. Nová poznámka si pak podle dneška a aktuálního času sama vybere správnou kategorii.</p>
+      <div class="week-grid" id="weekGrid"></div>
+    </div>
+    <div class="modal-foot"><button class="btn primary" data-close>Zavřít</button></div>
+  </div>
+</div>
+
+<!-- Časy hodin -->
+<div class="modal-overlay" id="timesModalOverlay" hidden>
+  <div class="modal">
+    <div class="modal-head"><h2>Časy hodin</h2><button class="btn ghost small" data-close>×</button></div>
+    <div class="modal-body">
+      <p class="modal-hint">Zadej, v kolik začíná každá vyučovací hodina (HH:MM). Appka podle toho pozná, která hodina zrovna probíhá.</p>
+      <div id="timesRows"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" data-close>Zrušit</button>
+      <button class="btn primary" id="btnSaveTimes">Uložit</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
