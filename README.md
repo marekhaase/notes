@@ -4,6 +4,7 @@ NOTES (web version)
 A small notes app for school. Plain HTML, CSS and JavaScript, no server. 
 
 ===================
+
 HOW TO RUN
 ----------
 Just double-click index.html - it opens in your default browser.
