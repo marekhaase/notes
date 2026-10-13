@@ -3,7 +3,6 @@ NOTES (web version)
 
 A small notes app for school. Plain HTML, CSS and JavaScript, no server. 
 
-===================
 
 HOW TO RUN
 ----------
